@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  codelens:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: codelens
+    ports:
+      - "3001:3001"
+    environment:
+      - PORT=3001
+      - NODE_ENV=production
+      - LLM_PROVIDER=auto
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+    volumes:
+      - ./data:/app/server/.faiss_data
+    restart: unless-stopped

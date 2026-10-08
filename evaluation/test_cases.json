@@ -1,0 +1,167 @@
+[
+  {
+    "id": "case_01",
+    "name": "Stale React State",
+    "category": "state_management",
+    "query": "Employee search sometimes shows stale results. The filtered list lags behind what is typed in the input.",
+    "files": [
+      {
+        "name": "EmployeeList.jsx",
+        "content": "import React, { useState } from 'react';\n\nexport function EmployeeList({ staff = [] }) {\n  const [query, setQuery] = useState('');\n  const [results, setResults] = useState(staff);\n\n  function onFilterChange(e) {\n    const text = e.target.value;\n    setQuery(text);\n    const filtered = staff.filter(s => s.name.toLowerCase().includes(query.toLowerCase()));\n    setResults(filtered);\n  }\n\n  return (\n    <div>\n      <input value={query} onChange={onFilterChange} />\n      <ul>{results.map(r => <li key={r.id}>{r.name}</li>)}</ul>\n    </div>\n  );\n}"
+      }
+    ],
+    "expectedFile": "EmployeeList.jsx",
+    "expectedLineRange": [7, 13],
+    "expectedStatus": "FOUND"
+  },
+  {
+    "id": "case_02",
+    "name": "Null/Undefined Property Access",
+    "category": "null_access",
+    "query": "TypeError: Cannot read properties of undefined (reading 'map') at UserDashboard.jsx:9",
+    "files": [
+      {
+        "name": "UserDashboard.jsx",
+        "content": "import React from 'react';\n\nexport function UserDashboard({ user }) {\n  return (\n    <div className=\"dashboard\">\n      <h2>Welcome, {user.name}</h2>\n      <div className=\"roles\">\n        {user.roles.map(role => (\n          <span key={role} className=\"tag\">{role}</span>\n        ))}\n      </div>\n    </div>\n  );\n}"
+      }
+    ],
+    "expectedFile": "UserDashboard.jsx",
+    "expectedLineRange": [8, 11],
+    "expectedStatus": "FOUND"
+  },
+  {
+    "id": "case_03",
+    "name": "Async Race Condition",
+    "category": "race_condition",
+    "query": "Rapid filter queries trigger an async race condition where an older slow network response overwrites the latest result.",
+    "files": [
+      {
+        "name": "ProductFilter.js",
+        "content": "let currentData = [];\n\nexport async function applyFilter(category) {\n  const response = await fetch(`/api/products?cat=${category}`);\n  const data = await response.json();\n  currentData = data;\n  renderProducts(currentData);\n}\n\nfunction renderProducts(items) {\n  console.log('Rendering items:', items.length);\n}"
+      }
+    ],
+    "expectedFile": "ProductFilter.js",
+    "expectedLineRange": [3, 8],
+    "expectedStatus": "FOUND"
+  },
+  {
+    "id": "case_04",
+    "name": "Wrong API Response Field",
+    "category": "api_mismatch",
+    "query": "Authentication token is undefined after login. API returns access_token but client reads token.",
+    "files": [
+      {
+        "name": "authService.js",
+        "content": "export async function loginUser(email, password) {\n  const res = await fetch('/api/login', {\n    method: 'POST',\n    body: JSON.stringify({ email, password })\n  });\n  const data = await res.json();\n  localStorage.setItem('auth_token', data.token);\n  return data.user;\n}"
+      }
+    ],
+    "expectedFile": "authService.js",
+    "expectedLineRange": [6, 8],
+    "expectedStatus": "FOUND"
+  },
+  {
+    "id": "case_05",
+    "name": "Missing React Dependency",
+    "category": "logic_error",
+    "query": "Timer count resets or uses stale step value inside useEffect interval because step is missing from dependencies.",
+    "files": [
+      {
+        "name": "TimerComponent.jsx",
+        "content": "import React, { useState, useEffect } from 'react';\n\nexport function TimerComponent({ step }) {\n  const [count, setCount] = useState(0);\n\n  useEffect(() => {\n    const id = setInterval(() => {\n      setCount(prev => prev + step);\n    }, 1000);\n    return () => clearInterval(id);\n  }, []);\n\n  return <div>Count: {count}</div>;\n}"
+      }
+    ],
+    "expectedFile": "TimerComponent.jsx",
+    "expectedLineRange": [6, 12],
+    "expectedStatus": "FOUND"
+  },
+  {
+    "id": "case_06",
+    "name": "Auth Logic Error",
+    "category": "logic_error",
+    "query": "Authorization check fails open due to incorrect operator precedence in role validation.",
+    "files": [
+      {
+        "name": "authMiddleware.js",
+        "content": "export function requireAdmin(req, res, next) {\n  const userRole = req.headers['x-user-role'];\n  if (!userRole === 'ADMIN') {\n    return res.status(403).json({ error: 'Forbidden' });\n  }\n  next();\n}"
+      }
+    ],
+    "expectedFile": "authMiddleware.js",
+    "expectedLineRange": [3, 5],
+    "expectedStatus": "FOUND"
+  },
+  {
+    "id": "case_07",
+    "name": "Incorrect Database Query",
+    "category": "logic_error",
+    "query": "User query generates syntax error or unsafe concatenation in repository method.",
+    "files": [
+      {
+        "name": "userRepository.py",
+        "content": "def find_users_by_status(db, status):\n    query = \"SELECT * FROM users WHERE status = '\" + status + \"'\"\n    return db.execute(query)"
+      }
+    ],
+    "expectedFile": "userRepository.py",
+    "expectedLineRange": [1, 3],
+    "expectedStatus": "FOUND"
+  },
+  {
+    "id": "case_08",
+    "name": "Off-by-One Loop Boundary",
+    "category": "off_by_one",
+    "query": "Array out of range error: pagination helper accesses items beyond array boundary due to off by one loop condition.",
+    "files": [
+      {
+        "name": "paginationHelper.js",
+        "content": "export function getPageItems(items, pageSize, pageNumber) {\n  const start = pageNumber * pageSize;\n  const result = [];\n  for (let i = start; i <= start + pageSize; i++) {\n    if (items[i]) result.push(items[i]);\n  }\n  return result;\n}"
+      }
+    ],
+    "expectedFile": "paginationHelper.js",
+    "expectedLineRange": [3, 6],
+    "expectedStatus": "FOUND"
+  },
+  {
+    "id": "case_09",
+    "name": "Incorrect Error Handling",
+    "category": "logic_error",
+    "query": "Payment silently reports success on transaction failure because catch block swallows error without throwing.",
+    "files": [
+      {
+        "name": "paymentGateway.js",
+        "content": "export async function processCharge(amount, card) {\n  try {\n    const res = await callBankApi(amount, card);\n    return { success: true, txn: res.id };\n  } catch (err) {\n    console.error('Payment error', err);\n    return { success: true };\n  }\n}"
+      }
+    ],
+    "expectedFile": "paymentGateway.js",
+    "expectedLineRange": [5, 8],
+    "expectedStatus": "FOUND"
+  },
+  {
+    "id": "case_10",
+    "name": "Type Mismatch Coercion",
+    "category": "type_mismatch",
+    "query": "Total calculation concatenates strings instead of adding numbers because tax input is parsed as string.",
+    "files": [
+      {
+        "name": "orderCalculator.js",
+        "content": "export function calculateTotal(subtotal, taxRate) {\n  const tax = subtotal * taxRate;\n  return subtotal + tax.toString();\n}"
+      }
+    ],
+    "expectedFile": "orderCalculator.js",
+    "expectedLineRange": [2, 3],
+    "expectedStatus": "FOUND"
+  },
+  {
+    "id": "case_11_negative",
+    "name": "Insufficient Evidence Negative Case",
+    "category": "other",
+    "query": "Kubernetes ingress controller throws 504 Gateway Timeout connecting to upstream gRPC cluster at port 9092.",
+    "files": [
+      {
+        "name": "simpleMath.js",
+        "content": "export function add(a, b) {\n  return a + b;\n}"
+      }
+    ],
+    "expectedFile": null,
+    "expectedLineRange": null,
+    "expectedStatus": "INSUFFICIENT_EVIDENCE"
+  }
+]

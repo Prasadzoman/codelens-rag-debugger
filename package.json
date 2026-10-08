@@ -1,0 +1,18 @@
+{
+  "name": "codelens",
+  "version": "1.0.0",
+  "description": "CodeLens - Free, Local-First, RAG-Powered AI Debugging Assistant",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "server": "npm --prefix server run dev",
+    "client": "npm --prefix client run dev",
+    "test": "npm --prefix server run test",
+    "eval": "node evaluation/evaluate.js",
+    "record": "node record_demo.js"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.64.0",
+    "playwright": "^1.64.0"
+  }
+}
